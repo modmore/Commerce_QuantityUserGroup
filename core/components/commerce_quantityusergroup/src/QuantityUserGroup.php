@@ -188,12 +188,12 @@ final class QuantityUserGroup implements PriceTypeInterface, ItemPriceTypeInterf
         ];
     }
 
-    private function setUsergroup(int $usergroupId): void
+    public function setUsergroup(int $usergroupId): void
     {
         $this->usergroup = $usergroupId;
     }
 
-    private function getUsergroup(): int
+    public function getUsergroup(): int
     {
         if (!$this->usergroup) {
             foreach ($this->prices as $price) {
