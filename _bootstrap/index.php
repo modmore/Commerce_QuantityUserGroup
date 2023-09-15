@@ -67,6 +67,8 @@ if (!createObject('modSystemSetting', array(
     echo "Error creating commerce_quantityusergroup.assets_url setting.\n";
 }
 
+// @todo snippet
+
 
 $path = $modx->getOption('commerce.core_path', null, MODX_CORE_PATH . 'components/commerce/') . 'model/commerce/';
 $params = ['mode' => $modx->getOption('commerce.mode')];
