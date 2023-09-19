@@ -89,7 +89,24 @@ $builder->package->put(
 );
 $modx->log(modX::LOG_LEVEL_INFO,'Packaged in core, requirements validator, and module loading resolver.'); flush();
 
-// @todo snippet
+$snippets = include $sources['data'].'transport.snippets.php';
+if (is_array($snippets)) {
+    $attr = array(
+        xPDOTransport::PRESERVE_KEYS => true,
+        xPDOTransport::UPDATE_OBJECT => true,
+        xPDOTransport::UNIQUE_KEY => 'name',
+    );
+    foreach ($snippets as $snippet) {
+        $vehicle = $builder->createVehicle($snippet, $attr);
+        $builder->putVehicle($vehicle);
+    }
+
+    $modx->log(modX::LOG_LEVEL_INFO,'Packaged in '.count($snippets).' snippets.'); flush();
+}
+else {
+    $modx->log(modX::LOG_LEVEL_FATAL,'Adding snippets failed.');
+}
+unset($snippets);
 
 /* now pack in the license file, readme and setup options */
 $builder->setPackageAttributes([

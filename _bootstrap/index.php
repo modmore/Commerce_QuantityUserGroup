@@ -67,7 +67,13 @@ if (!createObject('modSystemSetting', array(
     echo "Error creating commerce_quantityusergroup.assets_url setting.\n";
 }
 
-// @todo snippet
+if (!createObject('modSnippet', array(
+    'name' => 'commerce.render_quantity_usergroup_price',
+    'static' => true,
+    'static_file' => $componentPath.'/_build/elements/snippets/commerce.render_quantity_usergroup_price.snippet.php',
+), 'name', true)) {
+    echo "Error creating commerce_paymentrequest snippet.\n";
+}
 
 
 $path = $modx->getOption('commerce.core_path', null, MODX_CORE_PATH . 'components/commerce/') . 'model/commerce/';
