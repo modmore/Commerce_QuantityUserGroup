@@ -1,5 +1,5 @@
-QuantityUserGroup for Commerce 0.1.0-pl
----------------------------------
-Released on
+QuantityUserGroup for Commerce 1.0.0-pl
+---------------------------------------
+Released on 2023-09-19
 
 - First release
