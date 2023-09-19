@@ -41,50 +41,52 @@ $c->limit(1);
 
 // Attempt to load the product
 $product = $commerce->adapter->getObject('comProduct', $c);
+if (!($product instanceof comProduct)) {
+    $modx->log(modX::LOG_LEVEL_ERROR, '[Commerce.render_quantity_usergroup_price] Unable to fetch product information for ' . implode(',', $productIds));
 
-if ($product instanceof comProduct) {
-    $phs = [
-        'product' => $product->toArray(),
-    ];
+    return '';
+}
 
-    $pricing = $product->getPricing($commerce->currency);
-    $regularPrice = $pricing->getRegularPrice()->getInteger();
-    foreach ($pricing->getPriceTypes() as $type) {
-        // Filter on the users' groups
-        if ($type instanceof QuantityUserGroup) {
-            $ug = $type->getUsergroup();
-            $ugs = $modx->user ? $modx->user->getUserGroups() : [];
-            if ($ug > 0 && !in_array($ug, $ugs)) {
-                continue;
-            }
+$phs = [
+    'product' => $product->toArray(),
+];
+
+$pricing = $product->getPricing($commerce->currency);
+$regularPrice = $pricing->getRegularPrice()->getInteger();
+foreach ($pricing->getPriceTypes() as $type) {
+    // Filter on the users' groups
+    if ($type instanceof QuantityUserGroup) {
+        $ug = $type->getUsergroup();
+        $ugs = $modx->user ? $modx->user->getUserGroups() : [];
+        if ($ug > 0 && !in_array($ug, $ugs)) {
+            continue;
+        }
+    }
+
+    if (
+        $type instanceof Quantity
+        || $type instanceof QuantityUserGroup
+    ) {
+        $prices = $type->getPrices();
+        foreach ($prices as $price) {
+            $price['price'] = $price['amount'];
+            $price['price_formatted'] = $commerce->currency->format($price['amount']);
+            $price['discount'] = $regularPrice - $price['amount'];
+            $price['discount_formatted'] = $commerce->currency->format($price['discount']);
+            $price['discount_percentage'] = number_format($price['discount'] / $regularPrice * 100);
+            $phs['prices'][] = $price;
         }
 
-        if (
-            $type instanceof Quantity
-            || $type instanceof QuantityUserGroup
-        ) {
-            $prices = $type->getPrices();
-            foreach ($prices as $price) {
-                $price['price'] = $price['amount'];
-                $price['price_formatted'] = $commerce->currency->format($price['amount']);
-                $price['discount'] = $regularPrice - $price['amount'];
-                $price['discount_formatted'] = $commerce->currency->format($price['discount']);
-                $price['discount_percentage'] = number_format($price['discount'] / $regularPrice * 100);
-                $phs['prices'][] = $price;
-            }
+        $tpl = $modx->getOption('tpl', $scriptProperties, 'frontend/pricetypes/quantity.twig');
 
-            $tpl = $modx->getOption('tpl', $scriptProperties, 'frontend/pricetypes/quantity.twig');
+        try {
+            return $commerce->view()->render($tpl, $phs);
+        } catch (\modmore\Commerce\Exceptions\ViewException $e) {
+            $modx->log(modX::LOG_LEVEL_ERROR, '[Commerce] Exception parsing ' . $tpl . ': ' . $e->getMessage());
 
-            try {
-                return $commerce->view()->render($tpl, $phs);
-            }
-            catch (\modmore\Commerce\Exceptions\ViewException $e) {
-                $modx->log(modX::LOG_LEVEL_ERROR, '[Commerce] Exception parsing ' . $tpl . ': ' . $e->getMessage());
-                return $e->getMessage();
-            }
+            return $e->getMessage();
         }
     }
 }
 
-$modx->log(modX::LOG_LEVEL_ERROR, '[Commerce.render_quantity_price] Unable to fetch product information for ' . implode(',', $productIds));
 return '';
