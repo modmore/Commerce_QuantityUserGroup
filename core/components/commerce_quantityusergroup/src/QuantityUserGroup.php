@@ -121,7 +121,7 @@ final class QuantityUserGroup implements PriceTypeInterface, ItemPriceTypeInterf
 
     public static function getTitle()
     {
-        return 'commerce.price_type.quantity';
+        return 'commerce_quantityusergroup.price_type';
     }
 
     public static function getFields(\Commerce $commerce)

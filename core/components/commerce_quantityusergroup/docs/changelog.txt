@@ -1,4 +1,6 @@
-QuantityUserGroup for Commerce 1.0.0-pl
+- Use different title from the regular quantity price type
+
+QuantityUserGroup for Commerce 1.0.0-rc1
 ---------------------------------------
 Released on 2023-09-19
 
